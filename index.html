@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -5,6 +6,17 @@
     <style>
         body { margin: 0; }
         canvas { display: block; }
+        .info {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            color: #4A4A4A;
+            font-size: 13px;
+        }
+        a {
+            color: #1CAAD9;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -17,50 +29,50 @@
 
         function init() {
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0xe0e0e0); // Light grey background
+            scene.background = new THREE.Color(0xffffff); // White background
 
-            camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 1, 5000);
-            camera.position.set(0, -250, 250);
-            camera.lookAt(0, 0, 0);
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 2000);
+            camera.position.set(-200, 200, 200); // Angled, zoomed-out perspective
 
             renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.shadowMap.enabled = true; // Enable shadow rendering
             document.body.appendChild(renderer.domElement);
 
-            // Ambient light for overall illumination
-            const ambientLight = new THREE.AmbientLight(0x404040, 2);
+            // Ambient light
+            const ambientLight = new THREE.AmbientLight(0x404040);
             scene.add(ambientLight);
 
-            // Directional light for shadows
-            const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-            directionalLight.position.set(5, 3, 5);
-            directionalLight.castShadow = true; // Allow this light to cast shadows
+            // Directional light
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+            directionalLight.position.set(1, 1, 1);
             scene.add(directionalLight);
 
             const stlLoader = new THREE.STLLoader();
             stlLoader.load('https://raw.githubusercontent.com/ayush-wootz/3dmodells/main/Ancillary_Conveyor.stl', function (geometry) {
-                const material = new THREE.MeshPhongMaterial({ color: 0x555555 }); // Darker model color
+                const material = new THREE.MeshPhongMaterial({ color: 0x555555 }); // Neutral grey
                 const mesh = new THREE.Mesh(geometry, material);
-
-                mesh.rotation.x = -Math.PI / 2; // Rotate the model by 90 degrees
-                mesh.castShadow = true;  // Allow the model to cast shadows
-                mesh.receiveShadow = true;  // Allow the model to receive shadows
-
                 scene.add(mesh);
             });
 
             controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.addEventListener('change', render);
+
             animate();
         }
 
         function animate() {
             requestAnimationFrame(animate);
+            controls.update(); // Only required if controls.enableDamping = true, or if controls.autoRotate = true
+        }
+
+        function render() {
             renderer.render(scene, camera);
         }
 
         init();
     </script>
+    <div class="info">
+        <a href="https://sketchfab.com/3d-models/belt-conveyor-45-m-cb94bedbad95489fa5f799bc7a79d42c" target="_blank">Belt conveyor 4.5 m</a> by <a href="https://sketchfab.com/ayush123210" target="_blank">ayush123210</a> on <a href="https://sketchfab.com" target="_blank">Sketchfab</a>
+    </div>
 </body>
 </html>
-
