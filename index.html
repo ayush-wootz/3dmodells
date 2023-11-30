@@ -8,44 +8,55 @@
     </style>
 </head>
 <body>
-    <script type="module">
-        import * as THREE from 'https://unpkg.com/three@0.126.1/build/three.module.js';
-        import { STLLoader } from 'https://unpkg.com/three@0.126.1/examples/jsm/loaders/STLLoader.js';
-        import { OrbitControls } from 'https://unpkg.com/three@0.126.1/examples/jsm/controls/OrbitControls.js';
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://threejs.org/examples/js/loaders/STLLoader.js"></script>
+    <script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
 
+    <script>
         let scene, camera, renderer, controls;
 
         function init() {
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0xdddddd);
+            scene.background = new THREE.Color(0xe0e0e0); // Light grey background
 
             camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 1, 5000);
-            camera.rotation.y = 45/180*Math.PI;
-            camera.position.x = 800;
-            camera.position.y = 100;
-            camera.position.z = 1000;
-
-            const hlight = new THREE.AmbientLight(0x404040, 100);
-            scene.add(hlight);
+            camera.position.set(0, -250, 250);
+            camera.lookAt(0, 0, 0);
 
             renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true; // Enable shadow rendering
             document.body.appendChild(renderer.domElement);
 
-            const stlLoader = new STLLoader();
+            // Ambient light for overall illumination
+            const ambientLight = new THREE.AmbientLight(0x404040, 2);
+            scene.add(ambientLight);
+
+            // Directional light for shadows
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+            directionalLight.position.set(5, 3, 5);
+            directionalLight.castShadow = true; // Allow this light to cast shadows
+            scene.add(directionalLight);
+
+            const stlLoader = new THREE.STLLoader();
             stlLoader.load('https://raw.githubusercontent.com/ayush-wootz/3dmodells/main/Ancillary_Conveyor.stl', function (geometry) {
-                const material = new THREE.MeshPhongMaterial({ color: 0x7777ff });
+                const material = new THREE.MeshPhongMaterial({ color: 0x555555 }); // Darker model color
                 const mesh = new THREE.Mesh(geometry, material);
+
+                mesh.rotation.x = -Math.PI / 2; // Rotate the model by 90 degrees
+                mesh.castShadow = true;  // Allow the model to cast shadows
+                mesh.receiveShadow = true;  // Allow the model to receive shadows
+
                 scene.add(mesh);
             });
 
-            controls = new OrbitControls(camera, renderer.domElement);
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
             animate();
         }
 
         function animate() {
-            renderer.render(scene, camera);
             requestAnimationFrame(animate);
+            renderer.render(scene, camera);
         }
 
         init();
